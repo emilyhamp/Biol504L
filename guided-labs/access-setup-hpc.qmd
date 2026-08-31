@@ -1,6 +1,6 @@
 ---
 title: "Accessing W&M's HPC"
-author: "Your Name"
+author: "Emily Hamp"
 date: 2026-08-31
 projects: "guided-learning"
 keywords:
@@ -106,7 +106,7 @@ For both PCs and Macs, I recommend using the terminal to access SciClone.
    ::: {.callout-note title="SSH into Bora"}
    In the code below, replace `wm-username` with your W&M username!
    ```bash
-   ssh wm-username@bora.sciclone.wm.edu
+   ssh emhamp@bora.sciclone.wm.edu
    ```
    :::
 

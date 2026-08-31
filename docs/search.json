@@ -1,19 +1,5 @@
 [
   {
-    "objectID": "reading-notes/index.html",
-    "href": "reading-notes/index.html",
-    "title": "Reading notes",
-    "section": "",
-    "text": "The function quartoutils::make_reading_notes() makes it easy to create and edit a file to jot down reading notes.\nSpecifically, this function creates a new file in the reading-notes subdirectory of the root, using the file name provided through an argument. If such a file already exists, this function quits with an error. The file also automatically gets added to a table of all such files, which is accessible from the “Reading Notes” landing page of the website. This file is also added to the “reading notes” section of each project landing page; this functionality is demonstrated in the video below.\n\n\n\n\n\n\nNoteVideo instructions to create reading notes\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Title\n      \n      \n        Author\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nAuthor\n\n\n\nyear\n\n\n\nprojects\n\n\n\nkeywords\n\n\n\n\n\n\n\n\nDemo paper title\n\n\nDemo Author\n\n\n2020\n\n\nproject-1\n\n\n \n\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "YOUR-NAME’S Lab Notebook",
-    "section": "",
-    "text": "Using the lab notebook\nThe goal for this repository/notebook is to serve as a template that you can modify to establish your very own digital lab notebook! Click around on the tabs above to explore some of the functionality of this template site.\nThis notebook is yours and is to track the work you do in the Introduction to Bioinformatics Lab (Fall - 2026). It is critical that this stays up to date, as it acts as the predominant means to track lab work for grading.\nTo keep your notebook up-to-date, you will be relying on GitHub, which is an amazing repository for handling diverse bioinformatic tasks, including the maintenance of your notebook as a website (woo!). Building familiarity with Git is one of the most important tasks in learning bioinformatics.\nBelow is how to set up your notebook initially!\n\n\nSetting up your notebook\n\n\n\n\n\n\nNotePreparing R GUI for Your Notebook\n\n\n\n\n\nBefore the rendering of your notebook will work, we need to install R and R-Studio.\n\nFrom your preferred browser, download and install R\nAfterwards install R-Studio\n\nThen you are set!\n\n\n\n\n\n\n\n\n\nNoteInstalling Quarto Through the CLI with Pixi\n\n\n\n\n\nWhile the R-Studio approach works well, especially as we will use R in this lab, if you are interested in managing your notebook solely through the command-line, you can follow the steps below. If you choose this approach, I recommend using Pixi, a workspace manager (like containers), to install and manage the necessary software. This works, but is a less intuitive experience and I do not totally recommend it.\n\nOpen up your terminal (or git-bash)\nFollow the installation information for Pixi for your computer pixi installation\nOn your Desktop, make a new folder called Pixi_Envs\nIn your terminal, move to the newly created folder\nMake another new folder called quarto, then move inside there too!\ncreate our quarto workspace and install the necessary tools\npixi init\npixi add quarto r\nyou may be asked to pick a mirror to install R. If so, just type 63 and hit enter\nGo ahead and “register” the workspace\npixi workspace register\nNow you can activate this workspace from anywhere on your computer! Below is the code to do so:\npixi shell -w quarto\n\n\n\n\n\n\nVerifying that the notebook builds on your system\nBefore moving on, let’s verify that the lab notebook can render properly on your local system.\n\n\n\n\n\n\nNoteRStudio Rendering\n\n\n\n\n\n\nLoad up R-RStudio\nOpen the labnotebook.Rproj in your lab notebook folder as an R-project (with R-studio)\nIF you have note already installed the rmarkdown package with R, let’s do that now. Otherwse, skip this step!\ninstall.packages('rmarkdown')\nLoad the ‘rmarkdown’ package\nlibrary('rmarkdown')\nOnce ready, all you have to do is render your notebook (i.e. make the website!). There are two ways to do this:\n\nIn the upper right R-Studio pane, is the Build tab. Click on this, then the Render Website button!\nAll you have to do is type ctl+shift+b\n\n\n\n\n\n\n\n\n\n\n\nNoteCommand-line Rendering\n\n\n\n\n\n\nMake sure that you have used the terminal commands to move into your lab notebook folder\nEnsure that your quarto workspace is active. If it is not, run the following command:\npixi shell -w quarto\nRender your HTML files\nquarto render\nYour updated files will be found in the _site folder. Go ahead and open the index.html file, which will show you what your notebook updates will look like.\n\n\n\n\nEnjoy looking at the local version of your notebook! The steps to interact with GitHub to publish your notebook, can be found in the Guided Labs tab of your notebook."
-  },
-  {
     "objectID": "weekly-notes/week-of-2026-08-31.html",
     "href": "weekly-notes/week-of-2026-08-31.html",
     "title": "Week of August 31, 2026",
@@ -63,6 +49,20 @@
     "text": "Friday"
   },
   {
+    "objectID": "reading-notes/index.html",
+    "href": "reading-notes/index.html",
+    "title": "Reading notes",
+    "section": "",
+    "text": "The function quartoutils::make_reading_notes() makes it easy to create and edit a file to jot down reading notes.\nSpecifically, this function creates a new file in the reading-notes subdirectory of the root, using the file name provided through an argument. If such a file already exists, this function quits with an error. The file also automatically gets added to a table of all such files, which is accessible from the “Reading Notes” landing page of the website. This file is also added to the “reading notes” section of each project landing page; this functionality is demonstrated in the video below.\n\n\n\n\n\n\nNoteVideo instructions to create reading notes\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Title\n      \n      \n        Author\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nTitle\n\n\n\nAuthor\n\n\n\nyear\n\n\n\nprojects\n\n\n\nkeywords\n\n\n\n\n\n\n\n\nDemo paper title\n\n\nDemo Author\n\n\n2020\n\n\nproject-1\n\n\n \n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "YOUR-NAME’S Lab Notebook",
+    "section": "",
+    "text": "Using the lab notebook\nThe goal for this repository/notebook is to serve as a template that you can modify to establish your very own digital lab notebook! Click around on the tabs above to explore some of the functionality of this template site.\nThis notebook is yours and is to track the work you do in the Introduction to Bioinformatics Lab (Fall - 2026). It is critical that this stays up to date, as it acts as the predominant means to track lab work for grading.\nTo keep your notebook up-to-date, you will be relying on GitHub, which is an amazing repository for handling diverse bioinformatic tasks, including the maintenance of your notebook as a website (woo!). Building familiarity with Git is one of the most important tasks in learning bioinformatics.\nBelow is how to set up your notebook initially!\n\n\nSetting up your notebook\n\n\n\n\n\n\nNotePreparing R GUI for Your Notebook\n\n\n\n\n\nBefore the rendering of your notebook will work, we need to install R and R-Studio.\n\nFrom your preferred browser, download and install R\nAfterwards install R-Studio\n\nThen you are set!\n\n\n\n\n\n\n\n\n\nNoteInstalling Quarto Through the CLI with Pixi\n\n\n\n\n\nWhile the R-Studio approach works well, especially as we will use R in this lab, if you are interested in managing your notebook solely through the command-line, you can follow the steps below. If you choose this approach, I recommend using Pixi, a workspace manager (like containers), to install and manage the necessary software. This works, but is a less intuitive experience and I do not totally recommend it.\n\nOpen up your terminal (or git-bash)\nFollow the installation information for Pixi for your computer pixi installation\nOn your Desktop, make a new folder called Pixi_Envs\nIn your terminal, move to the newly created folder\nMake another new folder called quarto, then move inside there too!\ncreate our quarto workspace and install the necessary tools\npixi init\npixi add quarto r\nyou may be asked to pick a mirror to install R. If so, just type 63 and hit enter\nGo ahead and “register” the workspace\npixi workspace register\nNow you can activate this workspace from anywhere on your computer! Below is the code to do so:\npixi shell -w quarto\n\n\n\n\n\n\nVerifying that the notebook builds on your system\nBefore moving on, let’s verify that the lab notebook can render properly on your local system.\n\n\n\n\n\n\nNoteRStudio Rendering\n\n\n\n\n\n\nLoad up R-RStudio\nOpen the labnotebook.Rproj in your lab notebook folder as an R-project (with R-studio)\nIF you have note already installed the rmarkdown package with R, let’s do that now. Otherwse, skip this step!\ninstall.packages('rmarkdown')\nLoad the ‘rmarkdown’ package\nlibrary('rmarkdown')\nOnce ready, all you have to do is render your notebook (i.e. make the website!). There are two ways to do this:\n\nIn the upper right R-Studio pane, is the Build tab. Click on this, then the Render Website button!\nAll you have to do is type ctl+shift+b\n\n\n\n\n\n\n\n\n\n\n\nNoteCommand-line Rendering\n\n\n\n\n\n\nMake sure that you have used the terminal commands to move into your lab notebook folder\nEnsure that your quarto workspace is active. If it is not, run the following command:\npixi shell -w quarto\nRender your HTML files\nquarto render\nYour updated files will be found in the _site folder. Go ahead and open the index.html file, which will show you what your notebook updates will look like.\n\n\n\n\nEnjoy looking at the local version of your notebook! The steps to interact with GitHub to publish your notebook, can be found in the Guided Labs tab of your notebook."
+  },
+  {
     "objectID": "projects/Semester-Project/index.html",
     "href": "projects/Semester-Project/index.html",
     "title": "Semester-Project",
@@ -98,13 +98,6 @@
     "text": "Weeks in which I worked on this project\n\n\n\n\nTitle\nprojects\nkeywords\n\n\n\n\n\nNo matching items"
   },
   {
-    "objectID": "guided-labs/index.html",
-    "href": "guided-labs/index.html",
-    "title": "Guided Labs",
-    "section": "",
-    "text": "Each week, add the new set of guided lab pages. These will be worked on together and are to serve as a guided tutorial. There will be places to make updates to customize commands to your files, PATHs, and anything specific to your computer.\n\n\n\n\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n      \n        Title\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nDate\n\n\n\nTitle\n\n\n\nprojects\n\n\n\nkeywords\n\n\n\n\n\n\n\n\nAug 31, 2026\n\n\nAccessing W&M’s HPC\n\n\nguided-learning\n\n\nconda, container, hpc, install\n\n\n\n\n\n\nAug 31, 2026\n\n\nWorking with GitHub\n\n\nguided-learning\n\n\ngithub, website\n\n\n\n\n\n\nNo matching items"
-  },
-  {
     "objectID": "guided-labs/access-setup-hpc.html",
     "href": "guided-labs/access-setup-hpc.html",
     "title": "Accessing W&M’s HPC",
@@ -137,7 +130,7 @@
     "href": "guided-labs/access-setup-hpc.html#connecting-to-bora.sciclone.wm.edu",
     "title": "Accessing W&M’s HPC",
     "section": "Connecting to bora.sciclone.wm.edu",
-    "text": "Connecting to bora.sciclone.wm.edu\nFor both PCs and Macs, I recommend using the terminal to access SciClone.\n\nOpen the Terminal software\nConnect to the remote server using ssh with your username:\n\n\n\n\n\n\nNoteSSH into Bora\n\n\n\nIn the code below, replace wm-username with your W&M username!\nssh wm-username@bora.sciclone.wm.edu\n\n\nWhen you connect, you will be sitting in your home directory on the HPC!"
+    "text": "Connecting to bora.sciclone.wm.edu\nFor both PCs and Macs, I recommend using the terminal to access SciClone.\n\nOpen the Terminal software\nConnect to the remote server using ssh with your username:\n\n\n\n\n\n\nNoteSSH into Bora\n\n\n\nIn the code below, replace wm-username with your W&M username!\nssh emhamp@bora.sciclone.wm.edu\n\n\nWhen you connect, you will be sitting in your home directory on the HPC!"
   },
   {
     "objectID": "guided-labs/access-setup-hpc.html#hpc-navigation",
@@ -196,6 +189,20 @@
     "text": "Practing with GitHub and Editing!\nNow, try and upload all your cool changes to GitHub!\nPut really good notes here!!!\nRemember the order is:\n\nMake new posts, edits, whatever you want\nRender them and check locally!\nUse git commands to add, commit, and push your changes\nWait patiently\nCheck them online!"
   },
   {
+    "objectID": "guided-labs/index.html",
+    "href": "guided-labs/index.html",
+    "title": "Guided Labs",
+    "section": "",
+    "text": "Each week, add the new set of guided lab pages. These will be worked on together and are to serve as a guided tutorial. There will be places to make updates to customize commands to your files, PATHs, and anything specific to your computer.\n\n\n\n\n\n\n   \n    \n    \n      Order By\n      Default\n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n      \n        Title\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\nDate\n\n\n\nTitle\n\n\n\nprojects\n\n\n\nkeywords\n\n\n\n\n\n\n\n\nAug 31, 2026\n\n\nAccessing W&M’s HPC\n\n\nguided-learning\n\n\nconda, container, hpc, install\n\n\n\n\n\n\nAug 31, 2026\n\n\nWorking with GitHub\n\n\nguided-learning\n\n\ngithub, website\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "projects/how-to.html",
+    "href": "projects/how-to.html",
+    "title": "How to create new projects",
+    "section": "",
+    "text": "The function qurtoutils::make_project(projectname = \"...\") simplifies the process of creating a new project subdirectory. A new directory is created under the projects/ directory, using the name specified in the argument projectname.\nThe project has the following directory structure:\n\nfs::dir_tree(\"Semester-Project\")\n\nSemester-Project\n├── idea-note1.qmd\n└── index.qmd\n\n\nThe index.qmd file for the project will automatically search for weekly meeting notes and reading notes that have the same projects tag as the name for the newly made project."
+  },
+  {
     "objectID": "projects/Semester-Project/idea-note1.html",
     "href": "projects/Semester-Project/idea-note1.html",
     "title": "Idea note 1",
@@ -210,11 +217,11 @@
     "text": "Great place to brainstorm next steps and keep track of what you may want to test or explore more!\n\n\n\nTasks you may want to be able to tackle!\n\nMake a new post\nMake edits to an existing note\nStart your digital lab notebook and access online!"
   },
   {
-    "objectID": "projects/how-to.html",
-    "href": "projects/how-to.html",
-    "title": "How to create new projects",
+    "objectID": "reading-notes/demopaper1.html",
+    "href": "reading-notes/demopaper1.html",
+    "title": "Demo paper title",
     "section": "",
-    "text": "The function qurtoutils::make_project(projectname = \"...\") simplifies the process of creating a new project subdirectory. A new directory is created under the projects/ directory, using the name specified in the argument projectname.\nThe project has the following directory structure:\n\nfs::dir_tree(\"Semester-Project\")\n\nSemester-Project\n├── idea-note1.html\n├── idea-note1.qmd\n├── index-listing.json\n├── index.html\n└── index.qmd\n\n\nThe index.qmd file for the project will automatically search for weekly meeting notes and reading notes that have the same projects tag as the name for the newly made project."
+    "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sagittis posuere ligula sit amet lacinia. Duis dignissim pellentesque magna, rhoncus congue sapien finibus mollis. Ut eu sem laoreet, vehicula ipsum in, convallis erat. Vestibulum magna sem, blandit pulvinar augue sit amet, auctor malesuada sapien. Nullam faucibus leo eget eros hendrerit, non laoreet ipsum lacinia. Curabitur cursus diam elit, non tempus ante volutpat a. Quisque hendrerit blandit purus non fringilla. Integer sit amet elit viverra ante dapibus semper. Vestibulum viverra rutrum enim, at luctus enim posuere eu. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus."
   },
   {
     "objectID": "weekly-notes/index.html",
@@ -229,12 +236,5 @@
     "title": "Weekly notes",
     "section": "Footnotes",
     "text": "Footnotes\n\n\ni.e. a file with the name week-of-YYYY-MM-DD.qmd, where yyyy-mm-dd is the year-month-date of the Monday of the current week↩︎"
-  },
-  {
-    "objectID": "reading-notes/demopaper1.html",
-    "href": "reading-notes/demopaper1.html",
-    "title": "Demo paper title",
-    "section": "",
-    "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sagittis posuere ligula sit amet lacinia. Duis dignissim pellentesque magna, rhoncus congue sapien finibus mollis. Ut eu sem laoreet, vehicula ipsum in, convallis erat. Vestibulum magna sem, blandit pulvinar augue sit amet, auctor malesuada sapien. Nullam faucibus leo eget eros hendrerit, non laoreet ipsum lacinia. Curabitur cursus diam elit, non tempus ante volutpat a. Quisque hendrerit blandit purus non fringilla. Integer sit amet elit viverra ante dapibus semper. Vestibulum viverra rutrum enim, at luctus enim posuere eu. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus."
   }
 ]
