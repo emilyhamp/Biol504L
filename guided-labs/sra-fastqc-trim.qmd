@@ -1,6 +1,6 @@
 ---
 title: "Working with SRA Data"
-author: "YOUR-NAME"
+author: "Emily Hamp"
 date: 2026-09-09
 projects: "guided-learning"
 keywords:
@@ -18,7 +18,7 @@ and working in high-performance computing (HPC) environments. My hope is that yo
 move on -- I would like you to ***think*** about what these commands are doing and start imagining how they could be useful in analyzing your own data.
 
 ## For your success in the lab
-Each lab is inteded to be a reference point for you on various bioinformatic tasks.
+Each lab is intended to be a reference point for you on various bioinformatic tasks.
 To make the most of these labs, please treat them like a **personal resource**, so
 adjust any specific commands accordingly.
 
@@ -64,12 +64,12 @@ your notes as needed!
 
 1. Download your empty lab reposity from GitHub (only need to do this the first day)
    ```bash
-   ssh wm-username@bora.sciclone.wm.edu
+   ssh emhamp@bora.sciclone.wm.edu
    ```
 
 2. Move into your lab folder (this should be in the `scr10` directory)
    ```bash
-   YOUR CODE HERE
+   cd scr10
    ```
 
 3. Make a new directory called `raw_read_prep` if you have not already!
@@ -370,7 +370,7 @@ of where you currently are. This should be where the `.html` files are stored.
 laptop.
 
    ```bash
-   scp wm-username@bora.sciclone.wm.edu:PASTE-YOUR-PATH
+   scp emhamp@bora.sciclone.wm.edu:PASTE-YOUR-PATH
    ```
 
 ---
@@ -386,55 +386,57 @@ Below, the steps are numbered with emtpy code blocks below them. Copy-paste your
 
 1. Use `ssh` to log onto `bora`
    ```bash
-   CODE GOES HERE
+   ssh emhamp@bora.sciclone.wm.edu
    ```
 
 2. Move into your `raw_read_prep` directory inside your Biol404L directory
    ```bash
-   CODE GOES HERE
+    cd scr10/Biol504L/raw_read_prep
    ```
 
 3. Activate your conda `sra_prep` container (make sure to load miniforge3 first)
    ```bash
-   CODE GOES HERE
+   conda activate sra_prep
    ```
 
 4. Edit your `sra_download.sh` script to add, change, remove SRA accession numbers
 to download
    ```bash
-   CODE GOES HERE
+   nano sra_download.sh
    ```
 
 5. Run your `sra_download.sh` script
    ```bash
-   CODE GOES HERE
+   sbatch sra_download.sh
    ```
 
 6. Edit your `sra_fastq_dump.sh` script to change the SRA accession numbers to unpack
 and the output folder to store them.
    ```bash
-   CODE GOES HERE
+   nano sra_fastq_dump.sh
    ```
 
 7. Run your `sra_fastq_dump.sh` script
    ```bash
-   CODE GOES HERE
+   sbatch sra_fastqdump.sh
    ```
 
 8. Edit your `fastq_trim.sh` script to change the compressed fastq files to trim
 and the output names to save them.
    ```bash
-   CODE GOES HERE
+   nano fastq_trim.sh
    ```
 
 9. Run your `fastq_trim.sh` script
    ```bash
-   CODE GOES HERE
+   sbatch fastq_trim.sh
    ```
 
 10. Remember your cleaning commands!
     ```bash
-    CODE GOES HERE
+    rm file_name
+    rm *.file_type
+    rm -rf folder_name
     ```
 
 Make a small reference guide of steps for yourself down here!
