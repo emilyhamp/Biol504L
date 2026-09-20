@@ -1,6 +1,6 @@
 ---
 title: "Working with GitHub"
-author: "Your Name"
+author: "Emily Hamp"
 date: 2026-08-31
 projects: "guided-learning"
 keywords:
@@ -67,7 +67,7 @@ and setup your lab notebook webpage!
 
 1. Download your empty lab reposity from GitHub (only need to do this the first day)
    ```bash
-   CODE GOES HERE
+   git clone https://github.com/emilyhamp/Biol504L.git
    ```
 2. Download the files from BlackBoard and put them into the empty repository on your computer
 
