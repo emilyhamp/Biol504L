@@ -158,14 +158,14 @@
     "href": "guided-labs/sra-fastqc-trim.html",
     "title": "Working with SRA Data",
     "section": "",
-    "text": "The skills acquired in this lab class are crucial for bioinformatic tasks using molecular data, such as data analysis, scripting, and working in high-performance computing (HPC) environments. My hope is that you don’t just type the commands into the terminal and move on – I would like you to think about what these commands are doing and start imagining how they could be useful in analyzing your own data.\n\n\nEach lab is inteded to be a reference point for you on various bioinformatic tasks. To make the most of these labs, please treat them like a personal resource, so adjust any specific commands accordingly."
+    "text": "The skills acquired in this lab class are crucial for bioinformatic tasks using molecular data, such as data analysis, scripting, and working in high-performance computing (HPC) environments. My hope is that you don’t just type the commands into the terminal and move on – I would like you to think about what these commands are doing and start imagining how they could be useful in analyzing your own data.\n\n\nEach lab is intended to be a reference point for you on various bioinformatic tasks. To make the most of these labs, please treat them like a personal resource, so adjust any specific commands accordingly."
   },
   {
     "objectID": "guided-labs/sra-fastqc-trim.html#for-your-success-in-the-lab",
     "href": "guided-labs/sra-fastqc-trim.html#for-your-success-in-the-lab",
     "title": "Working with SRA Data",
     "section": "",
-    "text": "Each lab is inteded to be a reference point for you on various bioinformatic tasks. To make the most of these labs, please treat them like a personal resource, so adjust any specific commands accordingly."
+    "text": "Each lab is intended to be a reference point for you on various bioinformatic tasks. To make the most of these labs, please treat them like a personal resource, so adjust any specific commands accordingly."
   },
   {
     "objectID": "guided-labs/sra-fastqc-trim.html#before-we-get-started",
@@ -179,7 +179,7 @@
     "href": "guided-labs/sra-fastqc-trim.html#connecting-to-bora.sciclone.wm.edu-and-preparing-for-todays-lab",
     "title": "Working with SRA Data",
     "section": "Connecting to bora.sciclone.wm.edu and preparing for today’s lab",
-    "text": "Connecting to bora.sciclone.wm.edu and preparing for today’s lab\nWe are going to first access the HPC again, as you did in our first lab. Refer to your notes as needed!\n\nDownload your empty lab reposity from GitHub (only need to do this the first day)\nssh wm-username@bora.sciclone.wm.edu\nMove into your lab folder (this should be in the scr10 directory)\nYOUR CODE HERE\nMake a new directory called raw_read_prep if you have not already!\n\n\n\n\n\n\nTipIn case you get stumped\n\n\n\n\n\nUse the mkdir command to make a new directory!\nmkdir raw_read_prep\n\n\n\nMove into your new raw_read_prep folder\n\n\n\n\n\n\nTipIn case you get stumped\n\n\n\n\n\nUse the cd command to move into your new directory!\ncd raw_read_prep\n\n\n\nLoad miniforge3 to get access to conda\n\n\n\n\n\n\nTipIn case you get stumped\n\n\n\n\n\nmodule load miniforge3/24.9.2-0\n\n\n\nActivate your sra_prep container\n\n\n\n\n\n\nTipIn case you get stumped\n\n\n\n\n\nconda activate sra_prep\n\n\n\n\nGreat! Hopefully the navigation is getting easier!"
+    "text": "Connecting to bora.sciclone.wm.edu and preparing for today’s lab\nWe are going to first access the HPC again, as you did in our first lab. Refer to your notes as needed!\n\nDownload your empty lab reposity from GitHub (only need to do this the first day)\nssh emhamp@bora.sciclone.wm.edu\nMove into your lab folder (this should be in the scr10 directory)\ncd scr10\nMake a new directory called raw_read_prep if you have not already!\n\n\n\n\n\n\nTipIn case you get stumped\n\n\n\n\n\nUse the mkdir command to make a new directory!\nmkdir raw_read_prep\n\n\n\nMove into your new raw_read_prep folder\n\n\n\n\n\n\nTipIn case you get stumped\n\n\n\n\n\nUse the cd command to move into your new directory!\ncd raw_read_prep\n\n\n\nLoad miniforge3 to get access to conda\n\n\n\n\n\n\nTipIn case you get stumped\n\n\n\n\n\nmodule load miniforge3/24.9.2-0\n\n\n\nActivate your sra_prep container\n\n\n\n\n\n\nTipIn case you get stumped\n\n\n\n\n\nconda activate sra_prep\n\n\n\n\nGreat! Hopefully the navigation is getting easier!"
   },
   {
     "objectID": "guided-labs/sra-fastqc-trim.html#downloading-sra-datasets",
@@ -214,7 +214,7 @@
     "href": "guided-labs/sra-fastqc-trim.html#downloading-files-to-your-local-computer",
     "title": "Working with SRA Data",
     "section": "Downloading files to your local computer!",
-    "text": "Downloading files to your local computer!\nThe read trimming tool, fastp, automatically generates quality score reports for you to peruse! The only trouble is that these are stored on the HPC and you will need to download them to your computer to view.\nIn a new terminal window, move to your Desktop. If you want, you can make a folder specifically for these files, since the aim here is to really just look at them once.\nI would not store them in the lab folder that is pushed to GitHub, but you are free to make a new folder and store them there!\nOnce you are on your computer where you would like to download the files to, feel free to run the following steps.\n\nIn the terminal that is logged onto the HPC, use pwd to get the PATH (location) of where you currently are. This should be where the .html files are stored.\npwd\nCopy the output location! You will paste it in the next command!\nDownload all the .html to your current working directory on your laptop.\nscp wm-username@bora.sciclone.wm.edu:PASTE-YOUR-PATH"
+    "text": "Downloading files to your local computer!\nThe read trimming tool, fastp, automatically generates quality score reports for you to peruse! The only trouble is that these are stored on the HPC and you will need to download them to your computer to view.\nIn a new terminal window, move to your Desktop. If you want, you can make a folder specifically for these files, since the aim here is to really just look at them once.\nI would not store them in the lab folder that is pushed to GitHub, but you are free to make a new folder and store them there!\nOnce you are on your computer where you would like to download the files to, feel free to run the following steps.\n\nIn the terminal that is logged onto the HPC, use pwd to get the PATH (location) of where you currently are. This should be where the .html files are stored.\npwd\nCopy the output location! You will paste it in the next command!\nDownload all the .html to your current working directory on your laptop.\nscp emhamp@bora.sciclone.wm.edu:PASTE-YOUR-PATH"
   },
   {
     "objectID": "guided-labs/connecting-with-github.html",
