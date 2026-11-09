@@ -1,0 +1,102 @@
+---
+title: "Chelonia mydas RNA-seq read preparation"
+author: "Emily Hamp"
+date: "2026-11-02"
+format: html
+---
+
+## Goal
+
+Download SRA runs for the Chelonia mydas embryo dataset, convert the downloaded data to compressed FASTQ files, and prepare reads using fastp.
+
+## Working environment and locations
+
+- Log into HPC: `emhamp@bora.sciclone.wm.edu`.
+- Project directory: `~/scr10/Biol504L/project`.
+- Activate conda environment: `module load miniforge3/24.9.2-0`
+                              `conda activate sra_prep`
+
+## Download SRA runs
+
+I edited `sra_download.sh` and submitted it using `sbatch`. The saved version shown below downloads five accessions using `prefetch`.
+
+```bash
+#!/bin/bash
+#SBATCH --job-name=sra_fetch3
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH -t 4:00:00
+#SBATCH --mem=8G
+
+for seqrun in SRR18173240 SRR18173239 SRR18173238 SRR18173237 SRR18173236
+do
+ prefetch -v $seqrun
+done
+```
+
+## Convert SRA data to compressed FASTQ
+
+I copied and edited `sra_fastq_dump.sh`, changing the accession and output directory between submissions. 
+
+```bash
+#!/bin/bash
+#SBATCH --job-name=ehjob
+#SBATCH --nodes=1
+#SBATCH --ntasks=8
+#SBATCH -t 4:00:00
+#SBATCH --mem=8G
+
+parallel-fastq-dump --split-files \
+     --gzip \
+     --threads 8 \
+     -s SRR18173236 \
+     -O Cmydas_embryo_SRR18173236
+```
+
+## Filter and trim reads with fastp
+
+I created `sra_fastq_trim.sh` by copying `sra_fastq_dump.sh`, then replaced the conversion command with a fastp command.
+
+```bash
+#!/bin/bash
+#SBATCH --job-name=ehjob
+#SBATCH --nodes=1
+#SBATCH --ntasks=8
+#SBATCH -t 4:00:00
+#SBATCH --mem=8G
+
+fastp \
+     -i Cmydas_embryo_SRR18173246/SRR18173246_1.fastq.gz \
+     -o Cmydas_embryo_SRR18173246.Fwd.20q.70nt.fastq.gz \
+     -h Cmydas_embryo_SRR18173246.html \
+     -R "Cmydas_embryo_SRR18173246 Report" \
+     -q 20 \
+     -l 70 \
+     -w 8 \
+     -r
+```
+
+Settings in the command:
+
+| Option | Meaning |
+|---|---|
+| `-i` | Input FASTQ file |
+| `-o` | Filtered/trimmed FASTQ output |
+| `-h` | HTML report filename |
+| `-R` | Report title |
+| `-q 20` | Phred threshold for classifying a base as qualified during quality filtering |
+| `-l 70` | Discard reads shorter than 70 bases after processing |
+| `-w 8` | Use eight worker threads |
+| `-r` | Enable sliding-window quality cutting toward the right end |
+
+
+## Troubleshooting
+
+I submitted jobs and monitored them with commands such as:
+
+```bash
+sbatch sra_fastq_trim.sh
+squeue -u emhamp
+sacct -j 594408
+cat slurm-594383.out
+```
