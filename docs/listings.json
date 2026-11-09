@@ -1,15 +1,11 @@
 [
   {
-    "listing": "/weekly-notes/index.html",
+    "listing": "/guided-labs/index.html",
     "items": [
-      "/weekly-notes/week-of-2026-11-02.html",
-      "/weekly-notes/week-of-2026-08-31.html"
-    ]
-  },
-  {
-    "listing": "/reading-notes/index.html",
-    "items": [
-      "/reading-notes/demopaper1.html"
+      "/guided-labs/access-setup-hpc.html",
+      "/guided-labs/dge-wrap-up-viz.html",
+      "/guided-labs/connecting-with-github.html",
+      "/guided-labs/sra-fastqc-trim.html"
     ]
   },
   {
@@ -19,12 +15,17 @@
     ]
   },
   {
-    "listing": "/guided-labs/index.html",
+    "listing": "/reading-notes/index.html",
     "items": [
-      "/guided-labs/access-setup-hpc.html",
-      "/guided-labs/dge-wrap-up-viz.html",
-      "/guided-labs/connecting-with-github.html",
-      "/guided-labs/sra-fastqc-trim.html"
+      "/reading-notes/demopaper1.html"
+    ]
+  },
+  {
+    "listing": "/weekly-notes/index.html",
+    "items": [
+      "/weekly-notes/week-of-2026-11-02.html",
+      "/weekly-notes/week-of-2026-09-14.html",
+      "/weekly-notes/week-of-2026-08-31.html"
     ]
   }
 ]

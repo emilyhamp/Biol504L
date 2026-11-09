@@ -1,0 +1,29 @@
+---
+title: "Publishing Notes"
+format: html
+---
+
+## How I publish weekly notes to my lab website
+
+1. **Create and save the weekly note.** I save the Quarto file in the `weekly-notes/` folder of my `Biol504L` project. The filename follows the format `week-of-YYYY-MM-DD.qmd`. For example, my November 2 notes are saved as `weekly-notes/week-of-2026-11-02.qmd`.
+
+2. **Render the whole website.** In RStudio, I open the **Terminal** tab and run the following command from the `Biol504L` project folder:
+
+   ```bash
+   quarto render
+   ```
+
+   Quarto generates the HTML for the new note and updates the Weekly notes landing page in `docs/`. My GitHub Pages site publishes from the `docs/` folder on the `main` branch.
+
+3. **Check, commit, and push the files.** I run `git status` to review the changes. Then I stage both the Quarto source file and the rendered website files. For the November 2 entry, I would run:
+
+   ```bash
+   git add weekly-notes/week-of-2026-11-02.qmd docs/
+   git commit -m "Publish November 2 weekly notes"
+   git push
+   ```
+
+4. **Verify the live website.** On GitHub, I open the repository’s **Actions** tab and wait for the latest Pages deployment to show a green check. Then I open the live site, go to **Weekly notes**, and click the new entry to confirm it opens. 
+
+If the `.qmd` file appears in the GitHub repository but the entry is missing from the live website, I check whether I rendered and pushed the updated `docs/` files and whether the Pages deployment finished.
+---
