@@ -3,6 +3,9 @@ title: "Transcript Quantification + DGE Notes"
 author: "Emily Hamp"
 date: "2026-11-16"
 format: html
+execute:
+  eval: false
+  echo: true
 ---
 
 These notes follow my code from transcript quantification (using Salmon) through differential gene expression and GO enrichment.
