@@ -1,0 +1,546 @@
+---
+title: "Transcript Quantification + DGE Notes"
+author: "Emily Hamp"
+date: "2026-11-16"
+format: html
+---
+
+These notes follow my code from transcript quantification (using Salmon) through differential gene expression and GO enrichment.
+
+The analysis includes five freshly laid samples, five 36-hour normoxia samples, and five 36-hour hypoxia samples. The comparison extracted here is **hypoxia versus normoxia at 36 hours**.
+
+## 1. Salmon transcript quantification on the HPC
+
+Example script shown for **SRR18173236**.
+
+```bash
+#!/bin/bash
+# Slurm resource requests: job name, nodes, tasks, time limit, and memory.
+#SBATCH --job-name=ehjob
+#SBATCH --nodes=1
+#SBATCH --ntasks=8
+#SBATCH -t 4:00:00
+#SBATCH --mem=8G
+
+# Index-building command preserved from my script.
+# Each line starts with #, so this block does NOT run during this submission.
+# The FASTA contains the actual transcript and genome sequences.
+# The decoy list identifies which sequences are genome decoys.
+# Cmydas_index is the folder holding Salmon's searchable reference.
+# salmon index \
+#   -p 8 \
+#   -d Chelonia_mydas.Decoys.txt \
+#   -i Cmydas_index \
+#   -t Chelonia.Txm_Gnm.fasta
+
+# Quantify this sample using the existing index.
+# -i: index folder
+# -l A: automatically infer library type
+# -r: input reads supplied as SINGLE-END data
+# -p 8: use 8 threads
+# -o: output folder for this sample
+salmon quant -i Cmydas_index \
+  -l A \
+  -r /sciclone/home/emhamp/scr10/Biol504L/project/read_trim/Cmydas_embryo_SRR18173236.Fwd.20q.70nt.fastq.gz \
+  -p 8 \
+  -o Salmon_Quant/Cmydas_embryo_SRR18173236_Quant
+```
+
+The shown command processes one read file as single-end input.
+
+```bash
+# Run in the HPC project directory to submit the script to Slurm.
+sbatch salmon_run.sh
+```
+
+Salmon writes `quant.sf` inside each sample's output folder. It estimates transcript abundance.
+
+```bash
+# Run in a LOCAL Mac terminal to copy results from the HPC.
+# The local destination folder must already exist.
+# Quotes protect the remote wildcard from the local shell.
+scp -r 'emhamp@bora.sciclone.wm.edu:/sciclone/home/emhamp/scr10/Biol504L/project/Salmon_Quant/Cmydas*' ~/Desktop/Cmydas_Analysis/quant_data/
+```
+Turtle GTF and metadata were placed in `~/Desktop/Cmydas_DGE/`.
+
+## 2. Load R packages
+
+
+
+```{r}
+# Install BiocManager only if it is missing.
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+# Installation examples: uncomment only if a package is missing.
+# BiocManager::install(c("tximport", "DESeq2", "apeglm", "txdbmaker",
+#                       "AnnotationDbi", "AnnotationHub", "clusterProfiler",
+#                       "enrichplot"))
+# install.packages(c("readr", "ashr", "pheatmap", "tibble",
+#                    "RColorBrewer", "dplyr", "ggplot2"))
+
+library("tximport")       # Import Salmon estimates and summarize by gene
+library("readr")          # Reading files into R
+library("DESeq2")         # Differential gene expression and transformations
+library("apeglm")         # Shrink fold changes for initial MA plots
+library("ashr")           # Shrink fold changes for volcano plot and GO gene lists
+library("txdbmaker")      # Read the GTF into a transcript database
+library("AnnotationDbi")  # Query transcript/gene and functional annotations
+library("pheatmap")       # Heatmaps
+library("tibble")         # Convert row names into a gene column
+library("RColorBrewer")   # Heatmap and bar-plot colors
+library("dplyr")       # Filtering, mutate, case_when, and %>% (organizing results)
+library("ggplot2")        # Volcano plot and plot formatting
+library("AnnotationHub")  # Retrieve the turtle annotation database
+library("clusterProfiler") # GO enrichment
+library("enrichplot")     # Enrichment visualizations
+```
+
+## 3. Make the transcript-to-gene table
+
+```{r}
+# Folder containing the GTF, metadata, and saved R results.
+dir <- "/Users/emilyhamp/Desktop/Cmydas_DGE/"
+
+# Read the turtle GTF annotation into a transcript database.
+txdb <- makeTxDbFromGFF(
+  file = file.path(dir, "GCF_015237465.2_rCheMyd1.pri.v2_genomic.gtf"),
+  format = "gtf"
+)
+
+# Extract transcript names from the annotation.
+k <- keys(txdb, keytype = "TXNAME")
+
+# Find the gene corresponding to each transcript.
+# Multiple transcripts can belong to the same gene.
+tx2gene <- AnnotationDbi::select(
+  txdb,
+  keys = k,
+  columns = "GENEID",
+  keytype = "TXNAME"
+)
+
+head(tx2gene) # Inspect the first few transcript-to-gene pairs
+
+# Save the table we just created; this is not a separate downloaded input.
+write.csv(
+  tx2gene,
+  file = file.path(dir, "Cmydas.tx2gene.csv"),
+  row.names = FALSE
+)
+```
+
+The GTF mapping needs to match the transcript identifiers in the Salmon reference.
+
+## 4. Read metadata and locate the Salmon files
+
+```{r}
+# Read the metadata CSV into an R data frame called samples.
+samples <- read.csv(file.path(dir, "Sea_Turtle_Metadata.csv"))
+head(samples)
+
+# Salmon results are in a separate folder from the GTF and metadata.
+quant_dir <- "/Users/emilyhamp/Desktop/Cmydas_Analysis/quant_data"
+
+# Remove spaces before/after the sequencing-run IDs.
+samples$SRRs <- trimws(samples$SRRs)
+
+# Construct folder names such as Cmydas_embryo_SRR18173250_Quant.
+samples$quant_folder <- paste0(
+  "Cmydas_embryo_",
+  samples$SRRs,
+  "_Quant"
+)
+
+# Construct one complete quant.sf path per metadata row.
+quant_files <- file.path(quant_dir, samples$quant_folder, "quant.sf")
+
+# Label the paths and metadata rows with the same sample identifiers.
+# This labels their existing order; it does not sort the samples.
+names(quant_files) <- samples$SRRs
+rownames(samples) <- samples$SRRs
+
+head(quant_files)
+file.exists(quant_files) # Should print TRUE for every sample
+stopifnot(all(file.exists(quant_files))) # Stop if any file is missing
+
+# Import Salmon estimates and combine transcripts belonging to the same gene.
+# tximport also retains abundance/length information used by the DESeq2 import.
+txi <- tximport(quant_files, type = "salmon", tx2gene = tx2gene)
+```
+
+## 5. Define groups and create the DESeq2 dataset
+
+```{r}
+# Use the Condition text in the metadata to assign experimental groups.
+# In this specific metadata file, the remaining samples are freshly laid.
+# For another dataset, check unmatched conditions rather than assuming this.
+samples$group <- factor(
+  ifelse(
+    grepl("normoxia", samples$Condition, ignore.case = TRUE),
+    "Normoxia",
+    ifelse(
+      grepl("hypoxia", samples$Condition, ignore.case = TRUE),
+      "Hypoxia",
+      "Freshly_laid"
+    )
+  ),
+  levels = c("Normoxia", "Hypoxia", "Freshly_laid")
+)
+
+table(samples$group) # Expected from my metadata: 5 samples per group
+
+# Build the dataset from gene-level Salmon imports and sample metadata.
+# ~ group models differences among the three groups.
+# Normoxia is the reference because it is the first factor level.
+dds <- DESeqDataSetFromTximport(
+  txi,
+  colData = samples,
+  design = ~ group
+)
+
+# Genes are rows; samples are columns; entries are count estimates.
+View(counts(dds))
+```
+
+## 6. Explore sample relationships
+
+```{r}
+# Transform counts for PCA and heatmaps. Prepare the values without using the treatment-group labels. 
+rld = rlog(dds, blind = TRUE)
+
+# PCA summarizes major expression patterns; points are colored by group.
+plotPCA(rld, intgroup = "group")
+
+# Create group labels for the sample-correlation heatmap.
+meta <- data.frame(
+  group = samples$group,
+  row.names = colnames(dds)
+)
+
+rld_mat <- assay(rld)     # Extract the transformed expression matrix
+rld_corr <- cor(rld_mat)  # Calculate correlations between sample columns
+
+# Plot how similar samples are to one another.
+pheatmap(rld_corr, annotation = meta)
+```
+
+
+## 7. Filter low counts and run differential expression
+
+```{r}
+# Keep genes with at least 10 counts TOTAL across all samples.
+# This does not require 10 counts in each individual sample.
+good_rows <- rowSums(counts(dds)) >= 10
+dds <- dds[good_rows,]
+
+# Fit the DESeq2 model, accounting for normalization and count variation.
+dds <- DESeq(dds)
+
+resultsNames(dds) # Display the fitted model's coefficient names
+
+# Extract Hypoxia relative to Normoxia at 36 hours.
+# Positive log2 fold change = higher estimated expression in hypoxia.
+# Negative log2 fold change = lower estimated expression in hypoxia.
+res_hypoxia_normoxia <- results(
+  dds,
+  contrast = c("group", "Hypoxia", "Normoxia"),
+  alpha = 0.05
+)
+
+summary(res_hypoxia_normoxia)
+```
+
+`log2FoldChange` reports the effect size. `padj` reports the multiple-testing-adjusted p-value. A log2 fold change of 1 corresponds to a twofold ratio.
+
+## 8. Shrink fold changes with apeglm and make MA plots
+
+```{r}
+# Shrink uncertain log2 fold-change estimates using apeglm.
+res_hypoxia_normoxia_apeglm <- lfcShrink(
+  dds,
+  coef = "group_Hypoxia_vs_Normoxia",
+  type = "apeglm",
+  res = res_hypoxia_normoxia
+)
+
+summary(res_hypoxia_normoxia_apeglm)
+
+# MA plots: mean normalized expression versus log2 fold change.
+# Compare the original and shrunken estimates.
+plotMA(res_hypoxia_normoxia, ylim = c(-2, 2))
+plotMA(res_hypoxia_normoxia_apeglm, ylim = c(-2, 2))
+
+# Save the apeglm results.
+out_csv <- file.path(dir, "Hypoxia_vs_Normoxia.DEG.csv")
+write.csv(as.data.frame(res_hypoxia_normoxia_apeglm), file = out_csv)
+```
+
+## 9. Follow-up shrinkage with ashr
+
+I followed the class's second shrinkage example. The subsequent volcano plot and GO gene sets use the ashr estimates.
+
+```{r}
+# Explicitly set Normoxia as reference (it was already the reference above).
+dds$group <- relevel(dds$group, ref = "Normoxia")
+dds <- DESeq(dds)
+
+result_hypoxia_normoxia_ashr <- lfcShrink(
+  dds,
+  contrast = c("group", "Hypoxia", "Normoxia"),
+  type = "ashr",
+  alpha = 0.05
+)
+
+summary(result_hypoxia_normoxia_ashr)
+
+# Use the sequencing-run IDs as the sample column labels.
+samples$sample_name <- samples$SRRs
+colnames(dds) <- samples$sample_name
+```
+
+## 10. Make the normalized-count heatmap
+
+```{r}
+# Extract normalized counts and store gene identifiers in a column.
+normalized_counts <- data.frame(counts(dds, normalized = TRUE))
+normalized_counts <- tibble::rownames_to_column(
+  normalized_counts,
+  var = "gene"
+)
+
+# Choose a reversed red/yellow/blue color palette.
+heat_colors <- rev(RColorBrewer::brewer.pal(6, "RdYlBu"))
+
+# Exclude column 1 (gene names), leaving all 15 sample columns.
+pheatmap(as.matrix(normalized_counts[, -1]),
+         color = heat_colors,
+         cluster_rows = TRUE,  # Group genes with similar patterns
+         cluster_cols = TRUE,  # Group samples with similar patterns
+         show_rownames = FALSE, # Hide thousands of gene labels
+         border_color = NA,
+         fontsize = 10,
+         scale = "row",        # Show relative values within each gene
+         treeheight_row = 0,    # Hide the gene dendrogram
+         height = 20)
+```
+
+
+## 11. Label expression changes and make the volcano plot
+
+```{r}
+# Convert ashr results to a data frame and preserve the gene IDs.
+res_df <- as.data.frame(result_hypoxia_normoxia_ashr)
+res_df <- tibble::rownames_to_column(res_df, var = "gene")
+
+# Remove genes lacking an adjusted p-value from this plotting/enrichment table.
+res_df <- res_df %>% filter(!is.na(padj))
+
+# Label genes using BOTH an effect-size and a significance threshold.
+# UP: more than twofold higher estimated expression in hypoxia.
+# DOWN: less than half the estimated expression in hypoxia.
+# NOT: does not meet both criteria; it does not prove no biological effect.
+res_df <- res_df %>%
+  mutate(diffexpressed = case_when(
+    log2FoldChange > 1 & padj < 0.05 ~ "UP",
+    log2FoldChange < -1 & padj < 0.05 ~ "DOWN",
+    TRUE ~ "NOT"
+  ))
+
+table(res_df$diffexpressed) # Count genes assigned to each label
+
+# Plot effect size against statistical evidence, with one point per gene.
+ggplot(res_df, aes(
+  x = log2FoldChange,
+  y = -log10(padj),
+  color = diffexpressed
+)) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  scale_color_manual(
+    values = c("DOWN" = "blue", "NOT" = "grey", "UP" = "red")
+  ) +
+  geom_vline(xintercept = c(-1, 1), linetype = "dashed") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed") +
+  theme_minimal() +
+  labs(
+    x = "log2 Fold Change (Hypoxia / Normoxia)",
+    y = "-log10 Adjusted p-value",
+    color = "Expression"
+  )
+```
+
+
+## 12. Find the turtle GO annotation database
+
+```{r}
+ah <- AnnotationHub()
+
+# Search for a turtle organism annotation database.
+turtle_annotations <- query(ah, c("Chelonia mydas", "OrgDb"))
+turtle_annotations
+
+# The search returned this turtle record; load it.
+org_db <- ah[["AH120704"]]
+
+# Check supported identifier types and available annotations.
+AnnotationDbi::keytypes(org_db)
+AnnotationDbi::columns(org_db)
+
+# Check how many result gene names match database gene symbols.
+symbol_matches <- res_df$gene %in%
+  AnnotationDbi::keys(org_db, keytype = "SYMBOL")
+
+table(symbol_matches)
+```
+
+My output showed **17,679 symbol matches and 369 nonmatches**, using the returned AnnotationHub snapshot of 2026-04-23. 
+
+## 13. Prepare gene sets and run GO enrichment
+
+```{r}
+# Separate all selected DEGs, UP genes, and DOWN genes.
+sig_degs <- res_df %>% filter(diffexpressed != "NOT")
+only_up_degs <- res_df %>% filter(diffexpressed == "UP")
+only_down_degs <- res_df %>% filter(diffexpressed == "DOWN")
+
+# Extract the gene names rather than the entire result rows.
+all_gene_names <- res_df$gene
+sig_deg_names <- sig_degs$gene
+sig_up_names <- only_up_degs$gene
+sig_down_names <- only_down_degs$gene
+
+clean_sig_deg_names <- sig_deg_names
+clean_uni_names <- all_gene_names
+clean_sig_up_names <- sig_up_names
+clean_sig_down_names <- sig_down_names
+
+# Combined UP and DOWN gene set: biological-process enrichment.
+ego <- enrichGO(
+  gene = clean_sig_deg_names,
+  universe = clean_uni_names, # Background: genes in my processed res_df
+  OrgDb = org_db,             # Turtle annotations
+  keyType = "SYMBOL",         # Identifier type used by my result genes
+  ont = "BP",                 # Biological process
+  pAdjustMethod = "BH",       # Benjamini-Hochberg multiple-testing adjustment
+  qvalueCutoff = 0.05,
+  readable = TRUE
+)
+
+# UP genes: test all three GO categories for the faceted plot.
+sig_up_ego <- enrichGO(
+  gene = clean_sig_up_names,
+  universe = clean_uni_names,
+  OrgDb = org_db,
+  keyType = "SYMBOL",
+  ont = "ALL",                # BP, molecular function, cellular component
+  pAdjustMethod = "BH",
+  qvalueCutoff = 0.05,
+  readable = TRUE
+)
+
+# DOWN genes: biological-process enrichment.
+sig_down_ego <- enrichGO(
+  gene = clean_sig_down_names,
+  universe = clean_uni_names,
+  OrgDb = org_db,
+  keyType = "SYMBOL",
+  ont = "BP",
+  pAdjustMethod = "BH",
+  qvalueCutoff = 0.05,
+  readable = TRUE
+)
+```
+
+GO enrichment tests whether annotated functions occur more often in a selected gene set than expected from the background. 
+
+## 14. Visualize and save GO enrichment
+
+```{r}
+# Display up to 50 enriched terms for each gene set.
+dotplot(ego, showCategory = 50)
+dotplot(sig_up_ego, showCategory = 50)
+dotplot(sig_down_ego, showCategory = 50)
+
+# Convert results into ordinary tables for viewing and saving.
+goa_summary <- data.frame(ego)
+up_goa_summary <- data.frame(sig_up_ego)
+down_goa_summary <- data.frame(sig_down_ego)
+
+write.csv(
+  goa_summary,
+  file.path(dir, "Hypoxia_vs_Normoxia.All_DEGs.GOEnrichment.csv"),
+  row.names = FALSE
+)
+write.csv(
+  up_goa_summary,
+  file.path(dir, "Hypoxia_vs_Normoxia.UpReg_DEGs.GOEnrichment.csv"),
+  row.names = FALSE
+)
+write.csv(
+  down_goa_summary, # Use the DOWN table, not a duplicate of the UP table
+  file.path(dir, "Hypoxia_vs_Normoxia.DownReg_DEGs.GOEnrichment.csv"),
+  row.names = FALSE
+)
+
+# Connect similar GO terms; default similarity uses shared genes.
+# This is a network of TERMS, not physical interactions between genes.
+ego_sim <- enrichplot::pairwise_termsim(ego)
+enrichplot::emapplot(ego_sim, showCategory = 50)
+
+head(up_goa_summary)
+head(down_goa_summary)
+
+# Show UP enrichment as bars, split into the three GO categories.
+# Bar length is the associated gene count, not fold-change magnitude.
+p_facet <- barplot(
+  sig_up_ego,
+  x = "Count",
+  showCategory = 15,
+  split = "ONTOLOGY"
+) +
+  aes(fill = ONTOLOGY) +
+  scale_fill_brewer(palette = "Set2") +
+  enrichplot::autofacet(by = "row", scales = "free")
+
+p_facet + scale_y_discrete()
+```
+## What my GO enrichment analysis compared
+
+My GO enrichment analysis compared the functions represented in my selected genes with the functions represented in the background genes from my analysis.
+
+- **Selected genes:** my UP genes, DOWN genes, or both combined. These genes had an adjusted p-value below 0.05 and an absolute log2 fold change greater than 1.
+- **Background genes:** all genes remaining in `res_df`, including UP, DOWN, and NOT genes. Genes without usable GO annotations could not contribute to the relevant enrichment comparison.
+
+The turtle annotation database supplied information about which functions each gene is associated with. It was not a separate control expression dataset.
+
+For example, if 10% of the annotated background genes were associated with oxygen transport, but 40% of my UP genes were associated with it, GO enrichment would test whether this function was unusually common among my UP genes. 
+
+DESeq2 compared expression between **hypoxia and normoxia samples**. GO enrichment then compared the functions represented in my **selected gene sets** with those represented in my **background gene set**.
+
+## 15. Save the processed results and dataset
+
+```{r}
+# Save the ashr results used downstream, including gene IDs and labels.
+write.csv(
+  res_df,
+  file.path(dir, "Hypoxia_vs_Normoxia.ashr.DGE.csv"),
+  row.names = FALSE
+)
+
+# Save normalized gene counts for all samples.
+write.csv(
+  normalized_counts,
+  file.path(dir, "Cmydas.NormalizedCounts.csv"),
+  row.names = FALSE
+)
+
+# Save the fitted DESeq2 dataset.
+save(dds, file = file.path(dir, "Cmydas.DDS.rda"))
+```
+
+These commands save files in `Cmydas_DGE`; they do not open a new plot or table. Figures must be exported separately. The biological interpretation still requires examining the actual gene lists, adjusted p-values, sample patterns, and enriched terms.
+
+
+## Short methods summary
+
+RNA-seq transcript abundances were quantified with Salmon on the HPC and imported into R with tximport using a transcript-to-gene mapping derived from the *C. mydas* rCheMyd1.pri.v2 GTF annotation. Fifteen samples were assigned to freshly laid, 36-hour normoxia, and 36-hour hypoxia groups, with five samples per group. Sample relationships were explored using rlog-transformed PCA and correlation heatmaps. Genes with fewer than 10 total counts across samples were removed, and DESeq2 was fitted with `design = ~ group`. Hypoxia was contrasted against normoxia. Both apeglm and ashr fold-change shrinkage were explored; downstream gene classification used ashr estimates, adjusted p-value < 0.05, and absolute log2 fold change > 1. GO overrepresentation analysis used clusterProfiler and the turtle AnnotationHub OrgDb record AH120704 with gene symbols and the analyzed, non-missing-padj gene set as the supplied background. Combined and DOWN gene sets were tested for biological-process enrichment, while the UP set was tested across all three GO categories. Benjamini-Hochberg adjustment and a q-value cutoff of 0.05 were specified.
